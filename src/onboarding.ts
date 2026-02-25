@@ -24,10 +24,10 @@ This keeps context small and responses fast.
 ## Targeted lookups — use these instead of reading source files
 
 \`\`\`bash
-repoctx get --keyword dal,charge      # modules related to a topic
-repoctx get --keyword payments        # modules in the payments domain
-repoctx get --symbol removeCharge     # look up a specific function
-repoctx get interfaces/http           # everything indexed under a path
+repoctx get --keyword dal,users       # modules related to a topic
+repoctx get --keyword auth            # modules in the auth domain
+repoctx get --symbol deleteUser       # look up a specific function
+repoctx get src/users/                # everything indexed under a path
 \`\`\`
 
 Keywords are OR-filtered: \`--keyword dal,charge\` returns anything tagged
@@ -55,17 +55,17 @@ Always include \`--keywords\` matching the domain and layer so future
 lookups via \`--keyword\` can find this module:
 
 \`\`\`bash
-repoctx save data-access/mongoose/dals/index.js \\
-  "DAL hub. CRUD for orders, charges, addresses, coins." \\
-  --symbols "removeCharge,createOrder,getCharge" \\
-  --keywords "dal,mongoose,orders,charges,db" \\
-  --delta "Added removeCharge (hard delete)"
+repoctx save src/users/dal.js \\
+  "MongoDB DAL for users. CRUD operations." \\
+  --symbols "createUser,getUser,deleteUser" \\
+  --keywords "dal,users,mongodb" \\
+  --delta "Added deleteUser (soft delete)"
 \`\`\`
 
 Use \`--footguns\` to warn future agents about tricky behavior:
 
 \`\`\`bash
-  --footguns "deleteCharge = soft delete. removeCharge = hard delete. Don't confuse them."
+  --footguns "deleteUser = soft delete. removeUser = hard delete. Don't confuse them."
 \`\`\`
 
 ## When NOT to run \`repoctx save\`
@@ -80,15 +80,15 @@ Skip it for:
 For key functions worth tracking individually:
 
 \`\`\`bash
-repoctx save-symbol removeCharge "Hard delete a charge from MongoDB" \\
-  --file data-access/mongoose/dals/index.js \\
+repoctx save-symbol deleteUser "Hard delete a user from MongoDB" \\
+  --file src/users/dal.js \\
   --kind function \\
-  --signature "({ chargeSchema }) => async ({ id }) => Promise<DeleteResult>" \\
-  --related "deleteCharge,updateCharge" \\
-  --keywords "dal,charge,delete"
+  --signature "({ userSchema }) => async ({ id }) => Promise<DeleteResult>" \\
+  --related "softDeleteUser:soft-delete variant" \\
+  --keywords "dal,users,delete"
 \`\`\`
 
-Then look it up with: \`repoctx get --symbol removeCharge\`
+Then look it up with: \`repoctx get --symbol deleteUser\`
 
 ## Meta entries (patterns, glossary, folder map)
 
@@ -98,10 +98,10 @@ For knowledge not tied to a single file, use \`--meta\`:
 repoctx save .meta/patterns "DAL pattern: ({ schema }) => async (args) => ..." \\
   --keywords "pattern,convention,dal" --meta
 
-repoctx save .meta/glossary "charge = payment attempt. order = set of charges." \\
+repoctx save .meta/glossary "user = registered account. session = active login token." \\
   --keywords "glossary,domain" --meta
 
-repoctx save .meta/structure "application/use-cases = business logic..." \\
+repoctx save .meta/structure "src/users = user domain. src/auth = authentication. src/api = route handlers." \\
   --keywords "structure,folders" --meta
 \`\`\`
 

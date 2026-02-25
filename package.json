@@ -23,11 +23,18 @@
     "codebase",
     "agent"
   ],
-  "author": "Ezequiel98",
+  "author": {
+    "name": "Ezequiel",
+    "url": "https://github.com/Ezequiiel98"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/Ezequiiel98/repoctx"
+  },
+  "homepage": "https://github.com/Ezequiiel98/repoctx#readme",
+  "bugs": {
+    "url": "https://github.com/Ezequiiel98/repoctx/issues"
   },
   "dependencies": {
     "commander": "^14.0.3"

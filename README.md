@@ -1,11 +1,15 @@
 # repoctx
 
-A CLI that stores structured context about your codebase so AI coding
-assistants don't have to re-explore it every session.
+LLMs are probabilistic reasoners.
+Repositories are deterministic systems.
 
-Instead of reading source files from scratch, Claude (or any agent) runs
-`repoctx get --keyword <topic>` and gets summaries, exports, patterns and
-domain knowledge in one call — no file reads needed.
+Deterministic context should be extracted outside the LLM.
+
+repoctx precomputes repository context — diffs, summaries, symbol cards —
+so the assistant reasons instead of explores.
+
+Fast. Local. Minimal.
+No server. No DB. No embeddings. No magic.
 
 ## The problem
 
@@ -17,7 +21,7 @@ single line. The context is thrown away when the session closes.
 
 - You (or your agent) run `repoctx save <file> "<summary>"` after working on a file
 - repoctx stores the summary, exported symbols, keywords, and a content hash in `.repoctx/`
-- Next session: `repoctx get --keyword payments` returns all indexed modules tagged with that keyword — **0 file reads**
+- Next session: `repoctx get --keyword auth` returns all indexed modules tagged with that keyword — **0 file reads**
 - If a file changed since the last save, repoctx flags it as stale
 
 The index survives session resets. Context is never lost.
@@ -44,7 +48,7 @@ repoctx init                        # creates .repoctx/, adds to .gitignore
 repoctx onboarding >> CLAUDE.md     # tells Claude how to use repoctx
 ```
 
-That's it. From now on Claude will save context as it works and retrieve it at the start of each session — no extra steps needed.
+That's it. From now on Claude can save context as it works and retrieve it at the start of each session.
 
 ## Token savings
 
@@ -55,6 +59,8 @@ Measured on a real Node.js service (checkout API, 341 source files):
 | Without repoctx | 3,731 | ~933 | 4 |
 | repoctx (layer not indexed yet) | 3,396 | ~849 | 2 |
 | repoctx (layer fully indexed) | **1,139** | **~285** | **0** |
+
+Tokens estimated using ~4 chars per token heuristic.
 
 First session costs the same — you're reading the files anyway to work on them.
 From the second session onwards, you pay ~285 tokens instead of ~933 for the
@@ -67,12 +73,12 @@ same context. The savings compound across sessions and teammates.
 Save context for a file. Run this when a file's public contract changes.
 
 ```bash
-repoctx save src/dal.js "MongoDB DAL for orders and charges." \
-  --symbols "createOrder,getOrder,deleteOrder" \
-  --keywords "dal,orders,mongodb" \
-  --deps "orderSchema,chargeSchema" \
-  --footguns "deleteOrder is soft-delete only" \
-  --delta "Added removeOrder (hard delete)"
+repoctx save src/users/dal.js "MongoDB DAL for users. CRUD operations." \
+  --symbols "createUser,getUser,deleteUser" \
+  --keywords "dal,users,mongodb" \
+  --deps "userSchema,sessionSchema" \
+  --footguns "deleteUser is soft-delete only" \
+  --delta "Added deleteUser (soft delete)"
 ```
 
 | Option | Description |
@@ -89,12 +95,12 @@ repoctx save src/dal.js "MongoDB DAL for orders and charges." \
 Save a Symbol Card for a specific function or class.
 
 ```bash
-repoctx save-symbol removeCharge "Hard delete a charge from MongoDB" \
-  --file src/dal.js \
+repoctx save-symbol deleteUser "Hard delete a user from MongoDB" \
+  --file src/users/dal.js \
   --kind function \
-  --signature "({ chargeSchema }) => async ({ id }) => Promise<DeleteResult>" \
-  --related "deleteCharge:soft-delete variant" \
-  --keywords "dal,charge"
+  --signature "({ userSchema }) => async ({ id }) => Promise<DeleteResult>" \
+  --related "softDeleteUser:soft-delete variant" \
+  --keywords "dal,users,delete"
 ```
 
 ### `repoctx get [path] [--keyword k1,k2] [--symbol name]`
@@ -103,10 +109,10 @@ Print saved context. **Prefer `--keyword` over bare `repoctx get`** — it uses
 a keyword index (O(1)) and returns only what's relevant.
 
 ```bash
-repoctx get --keyword payments        # modules tagged with "payments"
-repoctx get --keyword dal,orders      # OR logic across keywords
-repoctx get src/payments/             # everything indexed under a path
-repoctx get --symbol removeCharge     # look up a specific function
+repoctx get --keyword auth            # modules tagged with "auth"
+repoctx get --keyword dal,users       # OR logic across keywords
+repoctx get src/users/                # everything indexed under a path
+repoctx get --symbol deleteUser       # look up a specific function
 ```
 
 ### `repoctx stale`
@@ -115,8 +121,8 @@ List all files whose content changed since the last `save`.
 
 ```bash
 repoctx stale
-# ⚠ src/dal.js  (file content changed)
-#   → repoctx save src/dal.js "<summary>" --delta "what changed"
+# ⚠ src/users/dal.js  (file content changed)
+#   → repoctx save src/users/dal.js "<summary>" --delta "what changed"
 ```
 
 ### `repoctx checkpoint` / `repoctx diff [--top N]`
@@ -169,12 +175,12 @@ repoctx save .meta/patterns \
 
 # Domain glossary
 repoctx save .meta/glossary \
-  "order = set of charges toward a total amount. charge = single payment attempt." \
+  "user = registered account. session = active login token." \
   --keywords "glossary,domain" --meta
 
 # Folder ownership
 repoctx save .meta/structure \
-  "application/use-cases = business logic. data-access/mongoose/dals = all DB ops." \
+  "src/users = user domain. src/auth = authentication. src/api = route handlers." \
   --keywords "structure,folders" --meta
 ```
 
@@ -186,6 +192,10 @@ local per developer.
 If you want to share context across the team, remove `.repoctx` from
 `.gitignore` and commit it. Anyone who clones the repo gets the full index
 immediately — no re-indexing needed.
+
+## Maintenance
+
+Best-effort. PRs welcome.
 
 ## License
 

@@ -25,7 +25,15 @@ The index survives session resets. Context is never lost.
 ## Install
 
 ```bash
+# From npm (recommended)
 npm install -g repoctx
+
+# From source
+git clone https://github.com/Ezequiiel98/repoctx.git
+cd repoctx
+npm install
+npm run build
+npm install -g .
 ```
 
 ## Quick start
@@ -33,19 +41,10 @@ npm install -g repoctx
 ```bash
 cd your-repo
 repoctx init                        # creates .repoctx/, adds to .gitignore
-
-# Index a file after working on it
-repoctx save src/payments/dal.js \
-  "MongoDB DAL for payments. CRUD for orders and charges." \
-  --symbols "createOrder,getCharge,updateCharge" \
-  --keywords "dal,payments,mongodb" \
-  --footguns "deleteCharge is soft-delete. removeCharge is hard delete."
-
-# Next session: get context without reading files
-repoctx get --keyword payments
-repoctx get --symbol getCharge
-repoctx stale                       # see what changed since last save
+repoctx onboarding >> CLAUDE.md     # tells Claude how to use repoctx
 ```
+
+That's it. From now on Claude will save context as it works and retrieve it at the start of each session — no extra steps needed.
 
 ## Token savings
 

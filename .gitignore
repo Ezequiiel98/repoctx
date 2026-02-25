@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.repoctx/
+.claude/
+*.map
+claude-context-integration.md
+claude-context-integration-gtp.md
+roadmap.txt

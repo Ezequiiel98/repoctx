@@ -12,7 +12,7 @@ function findWhereUsed(relPath: string): string[] {
   try {
     const basename = path.basename(relPath, path.extname(relPath));
     const raw = execSync(
-      `grep -r --include="*.js" --include="*.ts" -l "${basename}" . 2>/dev/null || true`,
+      `grep -r --include="*.js" --include="*.ts" --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=.repoctx -l "${basename}" . 2>/dev/null || true`,
       { encoding: "utf8", cwd: process.cwd() }
     );
     return raw

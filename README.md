@@ -195,7 +195,7 @@ immediately — no re-indexing needed.
 
 ## Maintenance
 
-Best-effort. PRs welcome.
+Built for my workflow; support is best-effort. PRs welcome.
 
 ## License
 

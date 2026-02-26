@@ -40,19 +40,14 @@ Every file you skip reading = one fewer tool call = faster response.
 A \`repoctx get --keyword X\` is one call. Reading three source files is
 three calls. Always check repoctx before reaching for Read.
 
-## When to run \`repoctx save\` (public contract changed)
+## After every Edit or Write
 
-Run it when any of these change:
-- Exported functions, classes, or constants
-- Module.exports / ESM exports
-- Route handlers or API surface
-- DAL/service patterns (factory signatures, argument shapes)
-- Business logic behavior (soft-delete vs hard-delete, idempotency, etc.)
-- A file is moved, renamed, or becomes a new entrypoint
-- A new convention or pattern is introduced
+Before responding to the user, check:
+- Did the public interface change? (exports, route handlers, DAL signatures, business logic behavior)
+- If yes → run \`repoctx save\` for that file before continuing
+- If no → skip
 
-Always include \`--keywords\` matching the domain and layer so future
-lookups via \`--keyword\` can find this module:
+Always include \`--keywords\` so future lookups can find this module:
 
 \`\`\`bash
 repoctx save src/users/dal.js \\
@@ -68,12 +63,7 @@ Use \`--footguns\` to warn future agents about tricky behavior:
   --footguns "deleteUser = soft delete. removeUser = hard delete. Don't confuse them."
 \`\`\`
 
-## When NOT to run \`repoctx save\`
-
-Skip it for:
-- Literals, log messages, comments, or formatting
-- Internal refactors with no change to the public interface
-- Test-only changes
+Skip \`repoctx save\` for: literals, logs, comments, formatting, internal refactors with no public interface change, test-only changes.
 
 ## Symbol Cards (fine-grained lookup)
 

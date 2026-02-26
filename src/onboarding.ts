@@ -17,6 +17,9 @@ repoctx get --keyword <topic>   # targeted: only what you need
 repoctx diff --top 8            # what changed since the last checkpoint
 \`\`\`
 
+If both return empty, the index hasn't been populated yet — proceed normally
+and run \`repoctx save\` after your first meaningful change.
+
 Prefer \`--keyword\` over a bare \`repoctx get\` (which dumps everything).
 Use keywords to fetch only the modules relevant to the current task.
 This keeps context small and responses fast.

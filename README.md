@@ -193,6 +193,10 @@ If you want to share context across the team, remove `.repoctx` from
 `.gitignore` and commit it. Anyone who clones the repo gets the full index
 immediately — no re-indexing needed.
 
+## Compatibility
+
+Tested on Linux and macOS. On Windows, use WSL or Git Bash.
+
 ## Maintenance
 
 Built for my workflow; support is best-effort. PRs welcome.

@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "repoctx",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Structured context layer for AI coding assistants. Reduces token cost and exploration overhead by storing file summaries, symbol cards and git diffs in .repoctx/",
   "bin": {
     "repoctx": "dist/index.js"
